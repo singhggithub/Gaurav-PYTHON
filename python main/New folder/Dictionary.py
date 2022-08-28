@@ -1,0 +1,9 @@
+harryDict={
+    "Name":"Harry",
+    "Class":"4th",
+    "Marks":34.34
+}
+print(harryDict)
+harryDict["Marks"]=34
+print(harryDict["Marks"])
+print(harryDict)

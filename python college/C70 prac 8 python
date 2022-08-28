@@ -1,0 +1,758 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# PRACTICAL 8\n",
+    "## GAURAV SINGH\n",
+    "### 70"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "id": "ok0lRf8xkUzE"
+   },
+   "outputs": [],
+   "source": [
+    "from urllib.request import urlopen as uReq\n",
+    "from bs4 import BeautifulSoup as soup\n",
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Task A.\n",
+    "In order to do that, let&#39;s apply the understanding of web scraping on the Flipkart website to fetch\n",
+    "prices and technical specifications data from the web page. This Flipkart link\n",
+    "https://www.flipkart.com/search?q=samsung+mobiles&amp;sid=tyy%2C4io&amp;as=on&amp;as-\n",
+    "show=on&amp;otracker=AS_QueryStore_OrganicAutoSuggest_1_5_na_na_na&amp;otracker1=AS_Quer\n",
+    "yStore_OrganicAutoSuggest_1_5_na_na_na&amp;as-pos=1&amp;as-\n",
+    "type=RECENT&amp;suggestionId=samsung+mobiles%7CMobiles&amp;requestId=18944876-a6ef-44c0-\n",
+    "ac67-d31d7b11a548&amp;as-backfill=on\n",
+    "contains information about some features of Samsung phones, including technical specifications,\n",
+    "prices, discounts and rating, etc."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "id": "hqs8R06tkYdy"
+   },
+   "outputs": [],
+   "source": [
+    "url = \"https://www.flipkart.com/search?q=samsung+mobiles&amp;sid=tyy%2C4io&amp;as=on&amp;as-show=on&amp;otracker=AS_QueryStore_OrganicAutoSuggest_1_5_na_na_na&amp;otracker1=AS_QueryStore_OrganicAutoSuggest_1_5_na_na_na&amp;as-pos=1&amp;as-type=RECENT&amp;suggestionId=samsung+mobiles%7CMobiles&amp;requestId=18944876-a6ef-44c0-ac67-d31d7b11a548&amp;as-backfill=on\"\n",
+    "ur = uReq(url)\n",
+    "read = ur.read()\n",
+    "ur.close()\n",
+    "page = soup(read,\"html5lib\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "id": "oJygMbIVkgFH"
+   },
+   "outputs": [],
+   "source": [
+    "cont = page.findAll(\"div\",{\"class\" : \"_3pLy-c row\"})\n",
+    "lis = []\n",
+    "\n",
+    "dic = {\"Name\":[],\"Specs\":[],\"Price\":[],\"rating\":[]}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "id": "NuOmc5Bhkqy1"
+   },
+   "outputs": [],
+   "source": [
+    "for i in cont:\n",
+    "    names = \"\"\n",
+    "    name  = i.findAll(\"div\",{\"class\" : \"_4rR01T\"})\n",
+    "    Name = name[0].text\n",
+    "    for item in Name:\n",
+    "        if item !=\"(\":\n",
+    "            names = names + item\n",
+    "        else:\n",
+    "            break\n",
+    "    specs1 = i.findAll(\"ul\",{\"class\" :\"_1xgFaf\"})\n",
+    "    price = i.findAll(\"div\",{\"class\" :\"_30jeq3 _1_WHN1\"})\n",
+    "    rating =  i.findAll(\"div\",{\"class\" :\"_3LWZlK\"})\n",
+    "    Price = price[0].text[1:]\n",
+    "    Rating = rating[0].text\n",
+    "    dic[\"Name\"].append(names)\n",
+    "    dic[\"Price\"].append(Price)\n",
+    "    spr = specs1[0].text\n",
+    "    dic[\"Specs\"].append(spr)\n",
+    "    dic[\"rating\"].append(Rating)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "id": "UWD4Iw5Rkxm8"
+   },
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(dic)\n",
+    "df.to_csv(\"mov.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "id": "1BKSduqXlLPj"
+   },
+   "outputs": [],
+   "source": [
+    "table = pd.read_csv('mov.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "4oD793jLlQ_h",
+    "outputId": "af6bbc8c-1c72-413a-e2d9-936585137599"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "    Unnamed: 0                        Name  \\\n",
+      "0            0         SAMSUNG Galaxy F12    \n",
+      "1            1         SAMSUNG Galaxy F12    \n",
+      "2            2         SAMSUNG Galaxy F12    \n",
+      "3            3         SAMSUNG Galaxy F12    \n",
+      "4            4         SAMSUNG Galaxy F12    \n",
+      "5            5         SAMSUNG Galaxy F22    \n",
+      "6            6         SAMSUNG Galaxy F22    \n",
+      "7            7         SAMSUNG Galaxy F22    \n",
+      "8            8         SAMSUNG Galaxy M12    \n",
+      "9            9         SAMSUNG Galaxy F22    \n",
+      "10          10         SAMSUNG Galaxy M12    \n",
+      "11          11         SAMSUNG Galaxy M12    \n",
+      "12          12      SAMSUNG Galaxy F42 5G    \n",
+      "13          13      SAMSUNG Galaxy F42 5G    \n",
+      "14          14  SAMSUNG Metro 313 Dual Sim   \n",
+      "15          15           SAMSUNG GURU 1200   \n",
+      "16          16         SAMSUNG Galaxy A52    \n",
+      "17          17         SAMSUNG Galaxy A52    \n",
+      "18          18         SAMSUNG Galaxy M32    \n",
+      "19          19        SAMSUNG Guru Music 2   \n",
+      "20          20             SAMSUNG GURU GT   \n",
+      "21          21   SAMSUNG M21 2021 Edition    \n",
+      "22          22   SAMSUNG M21 2021 Edition    \n",
+      "23          23      SAMSUNG Galaxy F42 5G    \n",
+      "\n",
+      "                                                Specs   Price  rating  \n",
+      "0   4 GB RAM | 64 GB ROM | Expandable Upto 512 GB1...  10,499     4.2  \n",
+      "1   4 GB RAM | 64 GB ROM | Expandable Upto 512 GB1...  10,499     4.2  \n",
+      "2   4 GB RAM | 128 GB ROM | Expandable Upto 512 GB...  11,499     4.2  \n",
+      "3   4 GB RAM | 128 GB ROM | Expandable Upto 512 GB...  11,499     4.2  \n",
+      "4   4 GB RAM | 64 GB ROM | Expandable Upto 512 GB1...  10,499     4.2  \n",
+      "5   6 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  14,999     4.3  \n",
+      "6   4 GB RAM | 64 GB ROM | Expandable Upto 1 TB16....  12,999     4.3  \n",
+      "7   4 GB RAM | 64 GB ROM | Expandable Upto 1 TB16....  12,999     4.3  \n",
+      "8   6 GB RAM | 128 GB ROM16.51 cm (6.5 inch) Displ...  13,182     4.2  \n",
+      "9   6 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  14,999     4.3  \n",
+      "10  6 GB RAM | 128 GB ROM16.51 cm (6.5 inch) Displ...  13,238     4.2  \n",
+      "11  4 GB RAM | 64 GB ROM16.51 cm (6.5 inch) Displa...  11,114     4.2  \n",
+      "12  6 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  20,999     4.1  \n",
+      "13  6 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  20,999     4.1  \n",
+      "14  10 MB RAM | 2 MB ROM | Expandable Upto 16 GB5....   2,490     4.3  \n",
+      "15  NA MB ROM3.86 cm (1.52 inch) Display800 mAh Ba...   1,558     3.8  \n",
+      "16  8 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  26,590     4.4  \n",
+      "17  6 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  24,770     4.3  \n",
+      "18  4 GB RAM | 64 GB ROM | Expandable Upto 1 TB16....  14,578     4.2  \n",
+      "19  0.53 RAM | NA KB ROM | Expandable Upto 16 GB5....   2,245     4.8  \n",
+      "20  153 MB RAM | 153 MB ROM3.81 cm (1.5 inch) Disp...   1,675     4.0  \n",
+      "21  4 GB RAM | 64 GB ROM16.26 cm (6.4 inch) Displa...  13,085     4.2  \n",
+      "22  4 GB RAM | 64 GB ROM16.26 cm (6.4 inch) Displa...  13,152     4.2  \n",
+      "23  8 GB RAM | 128 GB ROM | Expandable Upto 1 TB16...  22,999     4.1  \n"
+     ]
+    }
+   ],
+   "source": [
+    "print(table)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "2Q-cMcqQk1YN",
+    "outputId": "6cec1ea9-48fd-4ac8-de6a-483e76a405ae"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Maximum Price is : \t 26,590\n",
+      "Mobile:  Name    SAMSUNG Galaxy A52 \n",
+      "Name: 16, dtype: object\n"
+     ]
+    }
+   ],
+   "source": [
+    "maximum = table[\"Price\"].max()\n",
+    "print(\"Maximum Price is : \\t\",table[\"Price\"].max())\n",
+    "for i in range(len(table)):\n",
+    "    if table.loc[i]['Price'] == maximum:\n",
+    "        print(\"Mobile: \",table.loc[i][[\"Name\"]])\n",
+    "        break"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "Q00QKlvhlCYE",
+    "outputId": "1194fed2-a130-4f7d-f6c9-c22d7f0b6e07"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "\n",
+      "Minimum Price is : \t 1,558\n",
+      "Mobile:  SAMSUNG GURU 1200\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"\\n\")\n",
+    "maximum1 = table['Price'].min()\n",
+    "print(\"Minimum Price is : \\t\",maximum1)\n",
+    "for j in range(len(table)):\n",
+    "    if table.loc[j]['Price'] == maximum1:\n",
+    "        print(\"Mobile: \",table.loc[j][\"Name\"])\n",
+    "        break"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "-ocnVURjlJ-n",
+    "outputId": "53428c19-9fb5-41b6-9020-77e7a1443638"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Name      SAMSUNG Galaxy F12 \n",
+      "Price                  10,499\n",
+      "rating                    4.2\n",
+      "Name: 0, dtype: object\n",
+      "\n",
+      "\n",
+      "Name      SAMSUNG Galaxy F12 \n",
+      "Price                  10,499\n",
+      "rating                    4.2\n",
+      "Name: 1, dtype: object\n",
+      "\n",
+      "\n",
+      "Name      SAMSUNG Galaxy F12 \n",
+      "Price                  11,499\n",
+      "rating                    4.2\n",
+      "Name: 2, dtype: object\n",
+      "\n",
+      "\n",
+      "Name      SAMSUNG Galaxy F12 \n",
+      "Price                  11,499\n",
+      "rating                    4.2\n",
+      "Name: 3, dtype: object\n",
+      "\n",
+      "\n",
+      "Name      SAMSUNG Galaxy F12 \n",
+      "Price                  10,499\n",
+      "rating                    4.2\n",
+      "Name: 4, dtype: object\n",
+      "\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "cmp = table.loc[1][\"Name\"]\n",
+    "for k in range(len(table)):\n",
+    "    if table.loc[k][\"Name\"] == cmp:\n",
+    "        print(table.loc[k][[\"Name\",\"Price\",\"rating\"]])\n",
+    "        print(\"\\n\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "TASK B :\n",
+    "In order to do that, let&#39;s apply the understanding of web scraping on the Amazon website to fetch\n",
+    "prices and technical specifications data from the web page. This Amazon link\n",
+    "https://www.amazon.in/s?k=samsung&amp;rh=n%3A1389401031&amp;ref=nb_sb_noss\n",
+    "contains information about some features of Samsung phones, including technical specifications,\n",
+    "prices, discounts and rating, etc."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "id": "LUD2q5AwliNH"
+   },
+   "outputs": [],
+   "source": [
+    "url = \"https://www.amazon.in/s?k=samsung&rh=n%3A1389401031&ref=nb_sb_noss\"\n",
+    "ur = uReq(url)\n",
+    "read = ur.read()\n",
+    "ur.close()\n",
+    "page = soup(read,\"html5lib\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "id": "gF9HWkz7nF_z"
+   },
+   "outputs": [],
+   "source": [
+    "cont = page.findAll(\"div\",{\"class\" : \"a-section a-spacing-small a-spacing-top-small\"})\n",
+    "lis = []\n",
+    "\n",
+    "dic = {\"Name\":[],\"Price\":[],\"rating\":[]}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "id": "YaiMHGJKnbfQ"
+   },
+   "outputs": [],
+   "source": [
+    "for i in cont:\n",
+    "    name = i.findAll(\"span\",{\"class\" : \"a-size-medium a-color-base a-text-normal\"})\n",
+    "    names=\"\"\n",
+    "    if len(name)!=0:\n",
+    "        Name = name[0].text\n",
+    "        for item in Name:\n",
+    "            if item !=\"(\":\n",
+    "                names = names + item\n",
+    "            else:\n",
+    "                break\n",
+    "        rating =  i.findAll(\"span\",{\"class\" :\"a-icon-alt\"})\n",
+    "        if len(rating)!=0:\n",
+    "            Rating = rating[0].text[:3]\n",
+    "            price = i.findAll(\"span\",{\"class\" :\"a-price-whole\"})\n",
+    "            Price = price[0].text\n",
+    "            dic[\"Name\"].append(names)\n",
+    "            dic[\"Price\"].append(Price)\n",
+    "            dic[\"rating\"].append(Rating)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {
+    "id": "xuC2_CzqneoF"
+   },
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(dic)\n",
+    "df.to_csv(\"PSLV1.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {
+    "id": "rYE8YDgtnilm"
+   },
+   "outputs": [],
+   "source": [
+    "table = pd.read_csv('PSLV1.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 770
+    },
+    "id": "lBMBUHdSnnU1",
+    "outputId": "b2d6e618-9139-4772-e965-268607c0baf1"
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Unnamed: 0</th>\n",
+       "      <th>Name</th>\n",
+       "      <th>Price</th>\n",
+       "      <th>rating</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>11,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>13,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>11,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>3</td>\n",
+       "      <td>Samsung Galaxy M21 2021 Edition</td>\n",
+       "      <td>12,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>4</td>\n",
+       "      <td>Samsung Galaxy M32 5G</td>\n",
+       "      <td>22,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>5</td>\n",
+       "      <td>Samsung Galaxy S20 FE 5G</td>\n",
+       "      <td>36,990</td>\n",
+       "      <td>4.4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>6</td>\n",
+       "      <td>Samsung Galaxy M32</td>\n",
+       "      <td>16,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>7</td>\n",
+       "      <td>Samsung Galaxy M32 5G</td>\n",
+       "      <td>20,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>8</td>\n",
+       "      <td>Samsung Galaxy A22 5G</td>\n",
+       "      <td>19,999</td>\n",
+       "      <td>3.9</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>9</td>\n",
+       "      <td>Samsung Galaxy M21 2021 Edition</td>\n",
+       "      <td>12,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>10</td>\n",
+       "      <td>Samsung Galaxy S20 FE 5G</td>\n",
+       "      <td>36,990</td>\n",
+       "      <td>4.4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>11</td>\n",
+       "      <td>Samsung Galaxy M52 5G</td>\n",
+       "      <td>24,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>12</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>13,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>13</td>\n",
+       "      <td>Samsung Galaxy M32 5G</td>\n",
+       "      <td>20,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>14</td>\n",
+       "      <td>SAMSUNG Galaxy F42 5G</td>\n",
+       "      <td>17,870</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>15</td>\n",
+       "      <td>Samsung Galaxy M32</td>\n",
+       "      <td>16,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>16</td>\n",
+       "      <td>Samsung Galaxy A03 Core</td>\n",
+       "      <td>7,990</td>\n",
+       "      <td>3.5</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>17</td>\n",
+       "      <td>Samsung Galaxy M52 5G</td>\n",
+       "      <td>26,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>18</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>11,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>19</td>\n",
+       "      <td>Samsung Galaxy M32</td>\n",
+       "      <td>14,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>20</td>\n",
+       "      <td>Samsung Galaxy A32</td>\n",
+       "      <td>23,499</td>\n",
+       "      <td>4.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>21</th>\n",
+       "      <td>21</td>\n",
+       "      <td>Samsung Galaxy M32 5G</td>\n",
+       "      <td>22,999</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>22</th>\n",
+       "      <td>22</td>\n",
+       "      <td>Samsung Galaxy A12</td>\n",
+       "      <td>12,999</td>\n",
+       "      <td>3.9</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23</th>\n",
+       "      <td>23</td>\n",
+       "      <td>Samsung Galaxy M12</td>\n",
+       "      <td>13,499</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Unnamed: 0                              Name   Price  rating\n",
+       "0            0               Samsung Galaxy M12   11,499     4.1\n",
+       "1            1               Samsung Galaxy M12   13,499     4.1\n",
+       "2            2               Samsung Galaxy M12   11,499     4.1\n",
+       "3            3  Samsung Galaxy M21 2021 Edition   12,999     4.2\n",
+       "4            4            Samsung Galaxy M32 5G   22,999     4.2\n",
+       "5            5         Samsung Galaxy S20 FE 5G   36,990     4.4\n",
+       "6            6               Samsung Galaxy M32   16,999     4.2\n",
+       "7            7            Samsung Galaxy M32 5G   20,999     4.2\n",
+       "8            8            Samsung Galaxy A22 5G   19,999     3.9\n",
+       "9            9  Samsung Galaxy M21 2021 Edition   12,999     4.2\n",
+       "10          10         Samsung Galaxy S20 FE 5G   36,990     4.4\n",
+       "11          11            Samsung Galaxy M52 5G   24,999     4.2\n",
+       "12          12               Samsung Galaxy M12   13,499     4.1\n",
+       "13          13            Samsung Galaxy M32 5G   20,999     4.2\n",
+       "14          14            SAMSUNG Galaxy F42 5G   17,870     4.2\n",
+       "15          15               Samsung Galaxy M32   16,999     4.2\n",
+       "16          16          Samsung Galaxy A03 Core    7,990     3.5\n",
+       "17          17            Samsung Galaxy M52 5G   26,999     4.2\n",
+       "18          18               Samsung Galaxy M12   11,499     4.1\n",
+       "19          19               Samsung Galaxy M32   14,999     4.2\n",
+       "20          20               Samsung Galaxy A32   23,499     4.0\n",
+       "21          21            Samsung Galaxy M32 5G   22,999     4.2\n",
+       "22          22               Samsung Galaxy A12   12,999     3.9\n",
+       "23          23               Samsung Galaxy M12   13,499     4.1"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "table"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "wp-0wdHDnqZk",
+    "outputId": "d4f0fbd2-1ceb-4789-ced6-0180cb3b2230"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Maximum Price is : \t 7,990\n",
+      "Mobile:  Name    Samsung Galaxy A03 Core \n",
+      "Name: 16, dtype: object\n"
+     ]
+    }
+   ],
+   "source": [
+    "maximum = table[\"Price\"].max()\n",
+    "print(\"Maximum Price is : \\t\",table[\"Price\"].max())\n",
+    "for i in range(len(table)):\n",
+    "    if table.loc[i]['Price'] == maximum:\n",
+    "        print(\"Mobile: \",table.loc[i][[\"Name\"]])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 0
+    },
+    "id": "dqLF3_kansbX",
+    "outputId": "47fe96b1-f299-4fa1-b162-afc3389176f2"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "\n",
+      "Minimum Price is : \t 11,499\n",
+      "Mobile:  Name    Samsung Galaxy A03 Core \n",
+      "Name: 16, dtype: object\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"\\n\")\n",
+    "maximum1 = table['Price'].min()\n",
+    "print(\"Minimum Price is : \\t\",maximum1)\n",
+    "for i in range(len(table)):\n",
+    "    if table.loc[i]['Price'] == maximum:\n",
+    "        print(\"Mobile: \",table.loc[i][[\"Name\"]])\n",
+    "        break"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "id": "kyip_3yXnu63"
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "colab": {
+   "collapsed_sections": [],
+   "name": "Untitled3.ipynb",
+   "provenance": []
+  },
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
