@@ -1,3 +1,4 @@
-from sketchpy import library
+
+from sketch import library
 myObject = library.rdj()
 myObject.draw()
